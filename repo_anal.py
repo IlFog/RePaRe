@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+#ancora da commentare
 from collections import defaultdict
 import plotly.express as px
 import os
