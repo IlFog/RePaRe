@@ -4,7 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# io metterei anche un commento direttamente sulla funzione per dire cosa fa
+# returns coverage of contiguous regions of the genome 
+# that are covered by at least one annotation as "exon"
+# all other regions are excluded.
+# The gene parameter is from a coordinate dataframe
+# The cov map is global and is derived from the mapping
 def flatten_exons(gene):
     global cov_map
     contig = gene.contig.values[0]
