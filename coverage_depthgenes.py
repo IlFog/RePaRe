@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-
+# io metterei anche un commento direttamente sulla funzione per dire cosa fa
 def flatten_exons(gene):
     global cov_map
     contig = gene.contig.values[0]
