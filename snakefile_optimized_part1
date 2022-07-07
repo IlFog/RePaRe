@@ -1,0 +1,113 @@
+configfile : "config.yaml"
+
+samples = []
+with open(config['list_path_first']) as f:  #opens the list and splits it to extract the names of the samples to use.
+    samples = f.read().splitlines()
+    print (samples)
+
+rule all:
+    input:
+        expand("{wpath}/unmapped/{sample}_um_1.fasta", wpath = config['working_dir'], sample = samples),
+        expand("{wpath}/unmapped/{sample}_um_2.fasta", wpath = config['working_dir'], sample = samples),
+        expand("{wpath}/coverage/{sample}/{sample}_mapping_depth.list", wpath = config['working_dir'], sample = samples)
+
+#quality control of the raw reads, it creates html and txt reports.
+rule fastqc_qc_repo:
+    input:
+        read_1 = "{wpath}/reads/{sample}_1.fastq.gz",
+        read_2 = "{wpath}/reads/{sample}_2.fastq.gz"
+    output:
+        qc_repo_1 = "{wpath}/qc_reports/{sample}_1_fastqc.html",
+        qc_repo_2 = "{wpath}/qc_reports/{sample}_2_fastqc.html",
+        qc_rep_1 = "{wpath}/qc_reports/{sample}_1_fastqc/fastqc_data.txt",
+        qc_rep_2 = "{wpath}/qc_reports/{sample}_2_fastqc/fastqc_data.txt"
+    log: "{wpath}/r_logs/fastqc_rep_{sample}.log"
+    shell:
+        "fastqc -o {wildcards.wpath}/qc_reports/ --extract {input.read_1} {input.read_2}"
+
+#analyses the reports to extract the data. Creates markdown report of the sample reads.
+rule qc_repo_analysis:
+    input:
+        qc_rep_1 = "{wpath}/qc_reports/{sample}_1_fastqc/fastqc_data.txt",
+        qc_rep_2 = "{wpath}/qc_reports/{sample}_2_fastqc/fastqc_data.txt"
+    output:
+        reporto = "{wpath}/reads/{sample}_report.md"
+    params:
+        dir1 = "{sample}_1_fastqc",
+        dir2 = "{sample}_2_fastqc"
+    log: "{wpath}/r_logs/qc_analysis_{sample}.log"
+    script:
+        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/repo_anal.py"
+
+#trimming of the reads with fastp, creating a report of the trimming.
+rule fastp_trimming:
+    input:
+        "{wpath}/reads/{sample}_report.md",
+        read_1 = "{wpath}/reads/{sample}_1.fastq.gz",
+        read_2 = "{wpath}/reads/{sample}_2.fastq.gz"
+    output:
+        trimmed_1 = "{wpath}/reads/{sample}_1_tr.fastq.gz",
+        trimmed_2 = "{wpath}/reads/{sample}_2_tr.fastq.gz",
+        report = "{wpath}/reads/report_{sample}.html"
+    log: "{wpath}/r_logs/fastp_trim_{sample}.log"
+    shell:
+        "fastp -5 -3 -x -q 30 -n 0 -l 75 -h {output.report} -R -w 16 -V -i {input.read_1} -I {input.read_2} -o {output.trimmed_1} -O {output.trimmed_2}"
+
+#mapping of the trimmed reads on the reference genome. The result gets then sorted and converted to a bam file.
+rule bwa_mapping_sort:
+    input:
+        genome = config['reference_path'],
+        read_1 = "{wpath}/reads/{sample}_1_tr.fastq.gz",
+        read_2 = "{wpath}/reads/{sample}_2_tr.fastq.gz"
+    output:
+        map = "{wpath}/reads/{sample}_mapping.bam"
+    threads: 64
+    log: "{wpath}/r_logs/bwa_map_{sample}.log"
+    shell:
+        "bwa mem -t {threads} {input.genome} {input.read_1} {input.read_2} | samtools sort | samtools view -b > {output.map}"
+
+#analyses mapping depth of the previous rule.
+rule samtools_depth:
+    input:
+        sorted="{wpath}/reads/{sample}_mapping.bam"
+    output:
+        coverage="{wpath}/coverage/{sample}_mapping_depth"
+    log: "{wpath}/r_logs/sam_depth_{sample}.log"
+    shell:
+        "samtools depth -aa -o {output.coverage} {input.sorted}"
+
+#calculates coverage and depth of mapping based on busco genes and genes' exons.
+rule analysis:
+    input:
+        coverage="{wpath}/coverage/{sample}_mapping_depth",
+        busco_exons = config["BuscoID_dir"],
+        genes_id = config["Exons_dir"]
+    output:
+        #results_fig = "{wpath}/coverage/{sample}/{sample}_mapping_depth_coverage.png",
+        results_tab = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",
+        results_lista = "{wpath}/coverage/{sample}/{sample}_mapping_depth.list"
+    log: "{wpath}/r_logs/analysis_{sample}.log"
+    script:
+        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/coverage_depthgenes.py"
+
+#extracts unmapped reads from mapping bam file.
+rule samtools_extraction_1:
+    input:
+        "{wpath}/reads/{sample}_mapping.bam"
+    output:
+        "{wpath}/unmapped/{sample}_unmapped.bam"
+    log: "{wpath}/r_logs/1_sam_extract_{sample}.log"
+    shell:
+        "samtools view -b -f 4 {input} > {output}"
+
+#converts unmapped bam file to fasta files for later use.
+rule samtools_conversion_1:
+    input:
+        "{wpath}/unmapped/{sample}_unmapped.bam"
+    output:
+        fw = "{wpath}/unmapped/{sample}_um_1.fasta",
+        rv = "{wpath}/unmapped/{sample}_um_2.fasta",
+        sn = "{wpath}/unmapped/{sample}_um_sin.fasta"
+    log: "{wpath}/r_logs/1_sam_conversion_{sample}.log"
+    shell:
+        "samtools fasta -1 {output.fw} -2 {output.rv} -s {output.sn} {input}"
