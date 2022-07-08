@@ -1,0 +1,4 @@
+name: snakemake
+channels:
+  - conda-forge
+prefix: /mnt/DATA/home/fog/mambaforge/envs/snakemake
