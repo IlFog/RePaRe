@@ -1,0 +1,8 @@
+list_path_first: /mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/again/list_of_new_reads
+working_dir: /mnt/HADES/Fogal/Crassostrea_gigas/genomic/again
+reference_path: /mnt/HADES/Fogal/Crassostrea_gigas/GCF_902806645.1_cgigas_uk_roslin_v1_genomic.fna
+BuscoID_dir: /mnt/HADES/Crassostrea_Gigas/genome/busco_exons_ID_gene
+Exons_dir: /mnt/HADES/Crassostrea_Gigas/genome/tot_exons_ID_gene
+list_path: /mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/again/lista_1
+Busco_dir: /mnt/HADES/Fogal/Crassostrea_gigas/nomi_BUSCO
+GCc_dir: /mnt/HADES/Fogal/Crassostrea_gigas/GCA_000297895.2_ASM29789v2_genomic.fna.gz
