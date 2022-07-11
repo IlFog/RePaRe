@@ -31,21 +31,20 @@ def flatten_exons(gene):
 
 BUSCO_exons = pd.read_csv(snakemake.input["busco_exons"], sep="\t" , names= ["contig", "start", "end", "ID_gene"])	#creates dataframe of busco exons from tsv file
 
-print(snakemake.input["busco_exons"])	#prints the input file to check the correct execution of the script
-# TODO: mute useless output, add a flag for enabling verbosity
-print(BUSCO_exons.head())
+#print(snakemake.input["busco_exons"])	#prints the input file to check the correct execution of the script
+#print(BUSCO_exons.head())
 
 tot_genes = pd.read_csv(snakemake.input["genes_id"], sep = "\t", names = ["contig", "start", "end", "ID_gene"])		# creates dataframe of genes from tsv file
                                                                                                                     # the columns are: contig id, gene start, gene end, gene id 
 
-print(snakemake.input["genes_id"])	#prints to check the correct execution of the script
-print(tot_genes.head())
+#print(snakemake.input["genes_id"])	#prints to check the correct execution of the script
+#print(tot_genes.head())
 
 cov = pd.read_csv(snakemake.input["coverage"], sep = "\t", names = ["contig", "position", "coverage"])		#creates dataframe from mapping depth tsv file
 base_name = snakemake.input["coverage"].split("/")[-1]	# obtain the base name of the coverage file
 
-print(snakemake.input["coverage"])	#prints to check the correct execution of the script
-print(cov.head())
+#print(snakemake.input["coverage"])	#prints to check the correct execution of the script
+#print(cov.head())
 
 cov_map = cov.groupby("contig")["coverage"].apply(np.array).to_dict()	#groups cov dataframe by contig, turning the coverage value into a dictionary of arrays (key = contig id) where each positions indicates the coverage of each contig at that postion
 
@@ -53,30 +52,22 @@ print(f"length of the coverage map: {len(cov_map)}")	#print to check the correct
 
 coverage_genes_busco = BUSCO_exons.groupby("ID_gene").apply(flatten_exons)	#groups busco_exons dataframe by ID and applies the flatten_exons function
 
-print(coverage_genes_busco.head())	#print to check the correct execution of the script
+#print(coverage_genes_busco.head())	#print to check the correct execution of the script
 
-SOGLIA = coverage_genes_busco.median()/8	#setting of a threshold value for the coverage to consider a gene "absent"
-# TODO: change the variable name SOGLIA to something in english
+THRSH = coverage_genes_busco.median()/8	#setting of a threshold value for the coverage to consider a gene "absent"
 
-print(f"threshold: {SOGLIA}")		#print to check the correct execution of the script
+print(f"threshold: {THRSH}")		#print to check the correct execution of the script
 
 coverage_tot_genes = tot_genes.groupby("ID_gene").apply(flatten_exons)		#groups tot_genes by ID and applies the previously defined function
 
-print(coverage_tot_genes.head())	#print to check the correct execution of the script
-
-# TODO: remove this commented code
-#plt.ioff()
-#plot = sns.distplot(coverage_tot_genes[coverage_tot_genes<100]).set_title(base_name)
+#print(coverage_tot_genes.head())	#print to check the correct execution of the script
 
 
 with open(snakemake.output["results_lista"], "w") as of:	# open the output file for writing
                                                             # the id each gene under threshold 
-    for gene in coverage_tot_genes[coverage_tot_genes<SOGLIA].index:
+    for gene in coverage_tot_genes[coverage_tot_genes<THRSH].index:
         of.write("{}\n".format(gene))
 del cov_map
-
-# TODO: remove this commented code
-#plot.figure.savefig(snakemake.output["results_fig"])
 
 coverage_tot_genes.to_csv(snakemake.output["results_tab"])	#turns coverage_tot_genes into a csv file
 
