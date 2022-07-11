@@ -1,14 +1,18 @@
+#TODO: change scripts paths
 configfile: "config.yaml"
 
-samples = []
-with open(config['list_path']) as f:
+samples = []         # variable that will contain the names of the sample to be used for a wildcard later.
+with open(config['list_path']) as f:    # opens the list and splits it to extract the names of the samples to use.
     samples = f.read().splitlines()
     print (samples)
 
 rule all:
     input:
         expand("{wpath}/spades_assembly/{sample}/report_{sample}.md", wpath = config['working_dir'], sample = samples)
+        # wpath: wildcard referring to the config file, contains the main path to your working directory.
+        # sample: wildcard taking in the samples names from the samples list.
 
+# indexes the pangenome file containing the new scaffolds.
 rule bwa_index_1:
     input:
         "{wpath}/pangenome.fasta"
@@ -22,17 +26,23 @@ rule bwa_index_1:
     shell:
         "bwa index {input}"
 
+# removes the raw reads from the folder.
+# to reduce the amount of data inside the disk.
+# comment or remove it if it is not needed.
 rule remove:
     input:
         r1 = "{wpath}/reads/{sample}_1.fastq.gz",
         r2 = "{wpath}/reads/{sample}_2.fastq.gz"
     output:
-        "{wpath}/reads/reads_download.sh"
+        "{wpath}/reads/reads_download.sh"       #TODO: change the path of the output or put it inside the config file
     log: "{wpath}/r_logs/2_remove.log"
     shell:
         "rm {input.r1}"
         "rm {input.r2}"
 
+# mapping of the unmapped reads from the reference genome over
+# the new scaffolds inside the pangenome file.
+# also sorts and converts to bam file.
 rule bwa_remapping_sort:
     input:
         "{wpath}/pangenome.fasta.amb",
@@ -40,23 +50,16 @@ rule bwa_remapping_sort:
         "{wpath}/pangenome.fasta.bwt",
         "{wpath}/pangenome.fasta.pac",
         "{wpath}/pangenome.fasta.sa",
-        fwd = "{wpath}/unmapped/{sample}_um_1.fasta",
-        rev = "{wpath}/unmapped/{sample}_um_2.fasta",
-        scafs = "{wpath}/pangenome.fasta"
+        fwd = "{wpath}/unmapped/{sample}_um_1.fasta",   #forward read
+        rev = "{wpath}/unmapped/{sample}_um_2.fasta",   #reverse read
+        scafs = "{wpath}/pangenome.fasta"               #pangenome.fasta file
     output:
         "{wpath}/unmapped/{sample}_remapped.bam"
     log: "{wpath}/r_logs/2_bwa_remap_{sample}.log"
     shell:
         "bwa mem {input.scafs} {input.fwd} {input.rev} | samtools sort | samtools view -b > {output}"
 
-#rule samtools_sort_2:
-#    input:
-#        "{wpath}/unmapped/{sample}_remapped.sam"
-#    output:
-#        "{wpath}/unmapped/{sample}_remapped.bam"
-#    shell:
-#        "samtools sort {input} | samtools view -b > {output}"
-
+#  extracts unmapped reads from the mapping over pangenome.fasta
 rule samtools_extraction_2:
     input:
         "{wpath}/unmapped/{sample}_remapped.bam"
@@ -66,28 +69,32 @@ rule samtools_extraction_2:
     shell:
         "samtools view -b -f 4 {input} > {output}"
 
+# converts bam file of the previous rule to fasta files
 rule samtools_conversion_2:
     input:
         "{wpath}/unmapped/{sample}_unm.bam"
     output:
-        fow = "{wpath}/unmapped/{sample}_unmppd_1.fasta",
-        rvs = "{wpath}/unmapped/{sample}_unmppd_2.fasta",
-        sin = "{wpath}/unmapped/{sample}_unmppd_sin.fasta"
+        fow = "{wpath}/unmapped/{sample}_unmppd_1.fasta",   #forward read
+        rvs = "{wpath}/unmapped/{sample}_unmppd_2.fasta",   #reverse read
+        sin = "{wpath}/unmapped/{sample}_unmppd_sin.fasta"  #single reads
     log: "{wpath}/r_logs/2_sam_conversion_{sample}.log"
     shell:
         "samtools fasta -1 {output.fow} -2 {output.rvs} -s {output.sin} {input}"
 
+# assembles the unmapped reads from the previous mapping into new contigs
+# part of them will be later added to the pangenome.fasta file
 rule spades_assembly:
     input:
         sx = "{wpath}/unmapped/{sample}_unmppd_1.fasta",
         dx = "{wpath}/unmapped/{sample}_unmppd_2.fasta"
     output:
-        fl = "{wpath}/spades_assembly/{sample}/scaffolds.fasta"
+        fl = "{wpath}/spades_assembly/{sample}/scaffolds.fasta"     #takes one of the files created as ouptut
     log: "{wpath}/r_logs/2_spd_assembly_{sample}.log"
     run:
-        shell("mkdir -p {wildcards.wpath}/spades_assembly/{wildcards.sample}")
-        shell("spades.py --isolate -1 {input.sx} -2 {input.dx} -o {wildcards.wpath}/spades_assembly/{wildcards.sample}")
+        shell("mkdir -p {wildcards.wpath}/spades_assembly/{wildcards.sample}")      #first we need to create a folder for the sample inside the spades_assembly folder
+        shell("spades.py --isolate -1 {input.sx} -2 {input.dx} -o {wildcards.wpath}/spades_assembly/{wildcards.sample}")    #spades takes a folder as output, hence the previous step
 
+# renames the scaffolds.fasta file identifying it with the associated sample name 
 rule rename:
     input:
         "{wpath}/spades_assembly/{sample}/scaffolds.fasta"
@@ -97,6 +104,7 @@ rule rename:
     shell:
         "mv {input} {output}"
 
+# indexes the scaffolds.fasta file, needed for later steps
 rule bwa_index_2:
     input:
         "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta"
@@ -110,6 +118,7 @@ rule bwa_index_2:
     shell:
         "bwa index {input}"
 
+# maps previously unmapped reads over the new scaffolds, sorts and converts them to bam file
 rule bwa_remapping_2:
     input:
         "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.amb",
@@ -126,14 +135,7 @@ rule bwa_remapping_2:
     shell:
         "bwa mem {input.scaff} {input.fowd} {input.revs} | samtools sort | samtools view -b > {output}"
 
-#rule samtools_sort_3:
-#    input:
-#        "{wpath}/spades_assembly/{sample}/{sample}_remap.sam"
-#    output:
-#        "{wpath}/spades_assembly/{sample}/{sample}_remap.bam"
-#    shell:
-#        "samtools sort {input} | samtools view -b > {output}"
-
+# calculates the coverage from the remapping just done.
 rule samtools_coverage_tab:
     input:
         "{wpath}/spades_assembly/{sample}/{sample}_remap.bam"
@@ -143,6 +145,7 @@ rule samtools_coverage_tab:
     shell:
         "samtools coverage {input} > {output}"
 
+# converts the txt file resulting from the previous rule to a csv file for later use
 rule conversion_txt:
     input:
         "{wpath}/spades_assembly/{sample}/{sample}_coverage_tab.txt"
@@ -152,44 +155,47 @@ rule conversion_txt:
     shell:
         "sed 's/    \+/,/g' {input} > {output}"
 
+# selects the new scaffolds based on length, GC count and coverage depth.
 rule GC_count_coverage_plot:
     input:
-        scaf = "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta",
-        cov = "{wpath}/spades_assembly/{sample}/{sample}_coverage_tab.csv",
-        gzp = config['GCc_dir'],
-        bcsv = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",
-        blist = config['Busco_dir'],
-        pgm = "{wpath}/pangenome.fasta"
+        scaf = "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta",     #the new sample's scaffolds
+        cov = "{wpath}/spades_assembly/{sample}/{sample}_coverage_tab.csv",     #the csv file just created
+        gzp = config['GCc_dir'],        #a file containing an assembly of the same species (different from the reference) to calculate GC percentage
+        bcsv = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",        #file containing the depth of coverage from the mapping
+        blist = config['Busco_dir'],        #list of busco IDs
+        pgm = "{wpath}/pangenome.fasta"     #pangenome.fasta file
     output:
-        selected = "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",
-        graf_sel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_selected.svg",
-        graf_nonsel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_not_selected.svg"
+        selected = "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",      #new fasta file containing the selected scaffolds
+        graf_sel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_selected.svg",       #plot of the selected scaffolds based on GC count and depth of coverage
+        graf_nonsel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_not_selected.svg" #plot of the whole scaffolds.fasta file 
     log: "{wpath}/r_logs/2_GC_plot_{sample}.log"
     script:
         "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/scaffolds_selection.py"
 
+# counts the number of reads to later put them inside report.
 rule count_reads:
     input:
         "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",
-        remapp = "{wpath}/unmapped/{sample}_remapped.bam",
-        non_map = "{wpath}/unmapped/{sample}_unmapped.bam"
+        remapp = "{wpath}/unmapped/{sample}_remapped.bam",      #reads mapped over pangenome.fasta scaffolds
+        non_map = "{wpath}/unmapped/{sample}_unmapped.bam"      #reads mapped over reference genome (from first part of pipeline)
     output:
         "{wpath}/spades_assembly/{sample}/{sample}_reads_calc.csv"
     log: "{wpath}/r_logs/2_count_reads_{sample}.log"
     shell:
         "echo \"$(samtools view -c {input.non_map}) $(samtools view -c -F 4 {input.remapp})\" | awk -F ' ' '{{ print $1, $2, $2/$1, $1-$2 }}' > {output}"
 
+# creates a report containing info on the scaffolds creation and selection and adds selected scaffolds to pangenome.fasta
 rule report:
     input:
-        bcsv = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",
-        blist = config['Busco_dir'],
-        calc_read = "{wpath}/spades_assembly/{sample}/{sample}_reads_calc.csv",
-        scaffolds = "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta",
-        selec = "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",
-        svg_sel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_selected.svg",
-        svg_nonsel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_not_selected.svg"
+        bcsv = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",    #depth coverage file
+        blist = config['Busco_dir'],        #Busco IDs list
+        calc_read = "{wpath}/spades_assembly/{sample}/{sample}_reads_calc.csv",     #reads counts file
+        scaffolds = "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta",    #file containing new scaffolds
+        selec = "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",         #file containing selected scaffolds
+        svg_sel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_selected.svg",    #selected scaffolds plot
+        svg_nonsel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_not_selected.svg"      #all scaffolds plot
     output:
-        report = "{wpath}/spades_assembly/{sample}/report_{sample}.md"
+        report = "{wpath}/spades_assembly/{sample}/report_{sample}.md"  #report in markdown
     log: "{wpath}/r_logs/2_report_{sample}.log"
     script:
         "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/report_script.py"

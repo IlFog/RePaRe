@@ -1,3 +1,4 @@
+#TODO: change scripts paths
 configfile : "config.yaml"
 
 samples = []        # variable that will contain the names of the sample to be used for a wildcard later.
