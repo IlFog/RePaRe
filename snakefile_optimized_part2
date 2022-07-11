@@ -1,0 +1,195 @@
+configfile: "config.yaml"
+
+samples = []
+with open(config['list_path']) as f:
+    samples = f.read().splitlines()
+    print (samples)
+
+rule all:
+    input:
+        expand("{wpath}/spades_assembly/{sample}/report_{sample}.md", wpath = config['working_dir'], sample = samples)
+
+rule bwa_index_1:
+    input:
+        "{wpath}/pangenome.fasta"
+    output:
+        "{wpath}/pangenome.fasta.amb",
+        "{wpath}/pangenome.fasta.ann",
+        "{wpath}/pangenome.fasta.bwt",
+        "{wpath}/pangenome.fasta.pac",
+        "{wpath}/pangenome.fasta.sa"
+    log: "{wpath}/r_logs/2_bwa_ix_1.log"
+    shell:
+        "bwa index {input}"
+
+rule remove:
+    input:
+        r1 = "{wpath}/reads/{sample}_1.fastq.gz",
+        r2 = "{wpath}/reads/{sample}_2.fastq.gz"
+    output:
+        "{wpath}/reads/reads_download.sh"
+    log: "{wpath}/r_logs/2_remove.log"
+    shell:
+        "rm {input.r1}"
+        "rm {input.r2}"
+
+rule bwa_remapping_sort:
+    input:
+        "{wpath}/pangenome.fasta.amb",
+        "{wpath}/pangenome.fasta.ann",
+        "{wpath}/pangenome.fasta.bwt",
+        "{wpath}/pangenome.fasta.pac",
+        "{wpath}/pangenome.fasta.sa",
+        fwd = "{wpath}/unmapped/{sample}_um_1.fasta",
+        rev = "{wpath}/unmapped/{sample}_um_2.fasta",
+        scafs = "{wpath}/pangenome.fasta"
+    output:
+        "{wpath}/unmapped/{sample}_remapped.bam"
+    log: "{wpath}/r_logs/2_bwa_remap_{sample}.log"
+    shell:
+        "bwa mem {input.scafs} {input.fwd} {input.rev} | samtools sort | samtools view -b > {output}"
+
+#rule samtools_sort_2:
+#    input:
+#        "{wpath}/unmapped/{sample}_remapped.sam"
+#    output:
+#        "{wpath}/unmapped/{sample}_remapped.bam"
+#    shell:
+#        "samtools sort {input} | samtools view -b > {output}"
+
+rule samtools_extraction_2:
+    input:
+        "{wpath}/unmapped/{sample}_remapped.bam"
+    output:
+        "{wpath}/unmapped/{sample}_unm.bam"
+    log: "{wpath}/r_logs/2_sam_extract_{sample}.log"
+    shell:
+        "samtools view -b -f 4 {input} > {output}"
+
+rule samtools_conversion_2:
+    input:
+        "{wpath}/unmapped/{sample}_unm.bam"
+    output:
+        fow = "{wpath}/unmapped/{sample}_unmppd_1.fasta",
+        rvs = "{wpath}/unmapped/{sample}_unmppd_2.fasta",
+        sin = "{wpath}/unmapped/{sample}_unmppd_sin.fasta"
+    log: "{wpath}/r_logs/2_sam_conversion_{sample}.log"
+    shell:
+        "samtools fasta -1 {output.fow} -2 {output.rvs} -s {output.sin} {input}"
+
+rule spades_assembly:
+    input:
+        sx = "{wpath}/unmapped/{sample}_unmppd_1.fasta",
+        dx = "{wpath}/unmapped/{sample}_unmppd_2.fasta"
+    output:
+        fl = "{wpath}/spades_assembly/{sample}/scaffolds.fasta"
+    log: "{wpath}/r_logs/2_spd_assembly_{sample}.log"
+    run:
+        shell("mkdir -p {wildcards.wpath}/spades_assembly/{wildcards.sample}")
+        shell("spades.py --isolate -1 {input.sx} -2 {input.dx} -o {wildcards.wpath}/spades_assembly/{wildcards.sample}")
+
+rule rename:
+    input:
+        "{wpath}/spades_assembly/{sample}/scaffolds.fasta"
+    output:
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta"
+    log: "{wpath}/r_logs/2_rename_{sample}.log"
+    shell:
+        "mv {input} {output}"
+
+rule bwa_index_2:
+    input:
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta"
+    output:
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.amb",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.ann",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.bwt",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.pac",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.sa"
+    log: "{wpath}/r_logs/2_bwa_ix_2_{sample}.log"
+    shell:
+        "bwa index {input}"
+
+rule bwa_remapping_2:
+    input:
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.amb",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.ann",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.bwt",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.pac",
+        "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta.sa",
+        scaff = "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta",
+        fowd = "{wpath}/unmapped/{sample}_unmppd_1.fasta",
+        revs = "{wpath}/unmapped/{sample}_unmppd_2.fasta"
+    output:
+        "{wpath}/spades_assembly/{sample}/{sample}_remap.bam"
+    log: "{wpath}/r_logs/2_bwa_remap_2_{sample}.log"
+    shell:
+        "bwa mem {input.scaff} {input.fowd} {input.revs} | samtools sort | samtools view -b > {output}"
+
+#rule samtools_sort_3:
+#    input:
+#        "{wpath}/spades_assembly/{sample}/{sample}_remap.sam"
+#    output:
+#        "{wpath}/spades_assembly/{sample}/{sample}_remap.bam"
+#    shell:
+#        "samtools sort {input} | samtools view -b > {output}"
+
+rule samtools_coverage_tab:
+    input:
+        "{wpath}/spades_assembly/{sample}/{sample}_remap.bam"
+    output:
+        "{wpath}/spades_assembly/{sample}/{sample}_coverage_tab.txt"
+    log: "{wpath}/r_logs/2_sam_coverage_{sample}.log"
+    shell:
+        "samtools coverage {input} > {output}"
+
+rule conversion_txt:
+    input:
+        "{wpath}/spades_assembly/{sample}/{sample}_coverage_tab.txt"
+    output:
+        "{wpath}/spades_assembly/{sample}/{sample}_coverage_tab.csv"
+    log: "{wpath}/r_logs/2_conversiontxt_{sample}.log"
+    shell:
+        "sed 's/    \+/,/g' {input} > {output}"
+
+rule GC_count_coverage_plot:
+    input:
+        scaf = "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta",
+        cov = "{wpath}/spades_assembly/{sample}/{sample}_coverage_tab.csv",
+        gzp = config['GCc_dir'],
+        bcsv = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",
+        blist = config['Busco_dir'],
+        pgm = "{wpath}/pangenome.fasta"
+    output:
+        selected = "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",
+        graf_sel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_selected.svg",
+        graf_nonsel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_not_selected.svg"
+    log: "{wpath}/r_logs/2_GC_plot_{sample}.log"
+    script:
+        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/scaffolds_selection.py"
+
+rule count_reads:
+    input:
+        "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",
+        remapp = "{wpath}/unmapped/{sample}_remapped.bam",
+        non_map = "{wpath}/unmapped/{sample}_unmapped.bam"
+    output:
+        "{wpath}/spades_assembly/{sample}/{sample}_reads_calc.csv"
+    log: "{wpath}/r_logs/2_count_reads_{sample}.log"
+    shell:
+        "echo \"$(samtools view -c {input.non_map}) $(samtools view -c -F 4 {input.remapp})\" | awk -F ' ' '{{ print $1, $2, $2/$1, $1-$2 }}' > {output}"
+
+rule report:
+    input:
+        bcsv = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",
+        blist = config['Busco_dir'],
+        calc_read = "{wpath}/spades_assembly/{sample}/{sample}_reads_calc.csv",
+        scaffolds = "{wpath}/spades_assembly/{sample}/{sample}_scaffolds.fasta",
+        selec = "{wpath}/spades_assembly/{sample}/{sample}_selected.fasta",
+        svg_sel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_selected.svg",
+        svg_nonsel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_not_selected.svg"
+    output:
+        report = "{wpath}/spades_assembly/{sample}/report_{sample}.md"
+    log: "{wpath}/r_logs/2_report_{sample}.log"
+    script:
+        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/report_script.py"
