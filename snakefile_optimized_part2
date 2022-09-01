@@ -1,4 +1,3 @@
-#TODO: change scripts paths
 configfile: "config.yaml"
 
 samples = []         # variable that will contain the names of the sample to be used for a wildcard later.
@@ -170,7 +169,7 @@ rule GC_count_coverage_plot:
         graf_nonsel = "{wpath}/spades_assembly/{sample}/{sample}_kde_plot_not_selected.svg" #plot of the whole scaffolds.fasta file 
     log: "{wpath}/r_logs/2_GC_plot_{sample}.log"
     script:
-        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/scaffolds_selection.py"
+        "scripts/scaffolds_selection.py"
 
 # counts the number of reads to later put them inside report.
 rule count_reads:
@@ -198,4 +197,4 @@ rule report:
         report = "{wpath}/spades_assembly/{sample}/report_{sample}.md"  #report in markdown
     log: "{wpath}/r_logs/2_report_{sample}.log"
     script:
-        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/report_script.py"
+        "scripts/report_script.py"
