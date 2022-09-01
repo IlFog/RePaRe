@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#ancora da commentare
 from collections import defaultdict
 import plotly.express as px
 import os
@@ -91,7 +90,7 @@ else:
 #used to write into the config file the value of the position to trim. 
 #Commented because I resorted to the default trimming for the beginning of the sequences.
 #If you want to use it be aware that it will overwrite the config file as it is written now.
-#fl = open("/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/again/config.yaml", "w")
+#fl = open("/path/to/config/file.yaml", "w")
 #fl.write("trim_pos : " + str(trim_pos))
 #fl.close()
 
