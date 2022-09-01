@@ -1,34 +1,40 @@
-#TODO: clear all the paths written
 # This is the configuration file for the snakemake pipeline. Feel free to modify it as you need.
 
-# Write the path to your list of samples after the ":". The list must contain only the samples names. 
-list_path_first: /mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/again/list_of_new_reads
+# Write the path to your list of samples after the ":". The list must contain only the samples names.
+# Example of path: /path/to/list/of/reads.txt
+list_path_first: 
 
 # Write the path to your working directory after the ":".
 # The pipeline will create more folders inside it as it works.
-working_dir: /mnt/HADES/Fogal/Crassostrea_gigas/genomic/again
+# Example: /path/to/working/directory/
+working_dir: 
 
 # Write the path to your reference genome after the ":". The reference genome must be a fasta file.
-# Include the file name in the path (e.g.: /path/to/file/reference_file.fna)
-reference_path: /mnt/HADES/Fogal/Crassostrea_gigas/GCF_902806645.1_cgigas_uk_roslin_v1_genomic.fna
+# Include the file name in the path 
+# Example: /path/to/file/reference_file.fna
+reference_path: 
 
 # Write the path to your file containing the IDs of your BUSCO **exons**.
-# Include the file name in the path (e.g.: /path/to/file/BUSCO_exons_IDs)
-BuscoID_dir: /mnt/HADES/Crassostrea_Gigas/genome/busco_exons_ID_gene
+# Include the file name in the path 
+# Example: /path/to/file/BUSCO_exons_IDs
+BuscoID_dir: 
 
 # Write the path to your file containing the IDs of your organism's genes' **exons**.
-# Include the file name in the path (e.g.: /path/to/file/ALL_genes_exons_IDs)
-Exons_dir: /mnt/HADES/Crassostrea_Gigas/genome/tot_exons_ID_gene
+# Include the file name in the path 
+# Example: /path/to/file/ALL_genes_exons_IDs
+Exons_dir: 
 
 # Write the path to your list of samples for the second part of the pipeline.
 # Check the README for more infos on why a second filepath is needed.
-list_path: /mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/again/lista_1
+list_path: 
 
 # Write the path to your file containing the names of BUSCO genes.
-# Include the file name in the path (e.g.: /path/to/file/BUSCO_names_file)
-Busco_dir: /mnt/HADES/Fogal/Crassostrea_gigas/nomi_BUSCO
+# Include the file name in the path 
+# Example: /path/to/file/BUSCO_names_file
+Busco_dir: 
 
 # Write the path to your file containing the alternative assembly used to calculate GC percentage.
 # Make sure that the file containing the assembly is a .fna.gz or .fasta.gz file.
-# Include the file name in the path (e.g.: /path/to/file/genome_assembly.fna.gz)
-GCc_dir: /mnt/HADES/Fogal/Crassostrea_gigas/GCA_000297895.2_ASM29789v2_genomic.fna.gz
+# Include the file name in the path 
+# Example: /path/to/file/genome_assembly.fna.gz
+GCc_dir: 
