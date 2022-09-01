@@ -37,7 +37,7 @@ rule qc_repo_analysis:
         dir2 = "{sample}_2_fastqc"
     log: "{wpath}/r_logs/qc_analysis_{sample}.log"
     script:
-        "scripts/repo_anal.py"
+        "scripts/report_analysis.py"
 
 # trimming of the reads with fastp, creating a report of the trimming.
 rule fastp_trimming:
