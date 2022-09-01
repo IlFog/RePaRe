@@ -1,4 +1,3 @@
-#TODO: change scripts paths
 configfile : "config.yaml"
 
 samples = []        # variable that will contain the names of the sample to be used for a wildcard later.
@@ -38,7 +37,7 @@ rule qc_repo_analysis:
         dir2 = "{sample}_2_fastqc"
     log: "{wpath}/r_logs/qc_analysis_{sample}.log"
     script:
-        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/repo_anal.py"
+        "scripts/repo_anal.py"
 
 # trimming of the reads with fastp, creating a report of the trimming.
 rule fastp_trimming:
@@ -89,7 +88,7 @@ rule analysis:
         results_lista = "{wpath}/coverage/{sample}/{sample}_mapping_depth.list"
     log: "{wpath}/r_logs/analysis_{sample}.log"
     script:
-        "/mnt/HADES/Fogal/Crassostrea_gigas/snakemake_files/scripts/coverage_depthgenes.py"
+        "scripts/coverage_depthgenes.py"
 
 # extracts unmapped reads from mapping bam file.
 rule samtools_extraction_1:
