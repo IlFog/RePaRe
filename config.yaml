@@ -1,33 +1,33 @@
 # This is the configuration file for the snakemake pipeline. Feel free to modify it as you need.
 
 # Write the path to your list of samples after the ":". The list must contain only the samples names.
-list_path_first: # /path/to/list/of/reads.txt
+list_path_first: # /absolute/path/to/list/of/reads.txt
 
 # Write the path to your working directory after the ":".
 # The pipeline will create more folders inside it as it works.
-working_dir: # /path/to/working/directory/
+working_dir: # /absolute/path/to/working/directory/
 
 # Write the path to your reference genome after the ":". The reference genome must be a fasta file.
 # Include the file name in the path 
-reference_path: # /path/to/file/reference_file.fna
+reference_path: # /absolute/path/to/file/reference_file.fna
 
 # Write the path to your file containing the IDs of your BUSCO **exons**.
 # Include the file name in the path 
-BuscoID_dir: # /path/to/file/BUSCO_exons_IDs
+BuscoID_dir: # /absolute/path/to/file/BUSCO_exons_IDs
 
 # Write the path to your file containing the IDs of your organism's genes' **exons**.
 # Include the file name in the path 
-Exons_dir: # /path/to/file/ALL_genes_exons_IDs
+Exons_dir: # /absolute/path/to/file/ALL_genes_exons_IDs
 
 # Write the path to your list of samples for the second part of the pipeline.
 # Check the README for more infos on why a second filepath is needed.
-list_path: # /path/to/list/of/reads.txt
+list_path: # /absolute/path/to/list/of/reads.txt
 
 # Write the path to your file containing the names of BUSCO genes.
 # Include the file name in the path 
-Busco_dir: # /path/to/file/BUSCO_names_file
+Busco_dir: # /absolute/path/to/file/BUSCO_names_file
 
 # Write the path to your file containing the alternative assembly used to calculate GC percentage.
 # Make sure that the file containing the assembly is a .fna.gz or .fasta.gz file.
 # Include the file name in the path 
-GCc_dir: # /path/to/file/genome_assembly.fna.gz
+GCc_dir: # /absolute/path/to/file/genome_assembly.fna.gz
