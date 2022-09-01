@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[ ]:
-
-
 from Bio import SeqIO
 from Bio.Seq import Seq
 import pandas as pds
@@ -13,14 +7,13 @@ import matplotlib.pyplot as plt
 import gzip
 
 
-# In[ ]:
 mpl.use('Agg')
 
 #CODE TO CALCULATE LIMITS FOR GC COUNT TO SELECT DATA
 
 GC_dict = {} #creation of a void dictionary to store GC count
 
-#opening of gzip file of asembly and GC count of the different scaffolds
+#opening of gzip file of assembly and GC count of the different scaffolds
 with gzip.open(snakemake.input["gzp"], "rt") as handle:
     for seq_record in SeqIO.parse(handle, "fasta"):
         count = 100*float(seq_record.seq.count("G")+seq_record.seq.count("C")+seq_record.seq.count("g")+seq_record.seq.count("c"))/(len(seq_record.seq)-(seq_record.seq.count("N")+seq_record.seq.count("n")))
@@ -40,11 +33,7 @@ GC_df.columns = ["ID", "Count"]
 sup = GC_df.Count.quantile(0.975)
 inf = GC_df.Count.quantile(0.025)
 
-
-# In[ ]:
-
-
-#CODE TO CALCULATE LIIMITS FOR DEPTH COVERAGE SELECTION
+#CODE TO CALCULATE LIMITS FOR DEPTH COVERAGE SELECTION
 #BUSCO GENES DEFINE HOMOZYGOUS PEAK
 
 #opening and readin .csv file with depth coverage for genes
@@ -61,7 +50,7 @@ buscor = [i.rstrip() for i in busco.readlines ()]
 #selecting genes with a cover inferior to 200
 genes_cover1 = genes_cover[genes_cover["0"]<200]
 
-#selecting busco geneshttps://www.units.it/
+#selecting busco genes
 busco_cover = genes_cover1[genes_cover1["ID_gene"].isin(buscor)]
 
 #calculating median to locate the homozygous peak
@@ -73,9 +62,6 @@ bmed = busco_median.iloc[0]
 #calculating upper and lower limit based on homo- and heterozygous peaks
 superior_busco = bmed * 1.35
 inferior_busco = (bmed / 2)*0.65
-
-
-# In[ ]:
 
 
 #CODE TO SELECT SCAFFOLDS I AM INTERESTED IN
@@ -126,9 +112,6 @@ for sequences in scaf_seq:
     if sequences.id in ID_list:
         r = SeqIO.write(sequences, fi, "fasta")
         p = SeqIO.write(sequences, all_sc, "fasta")
-
-# In[ ]:
-
 
 #creates plot from not-selected DataFrame
 grafico = sbn.jointplot(sub_cov_df.Count, sub_cov_df.Depth, kind="kde")
