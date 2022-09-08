@@ -1,4 +1,4 @@
-# PaPAVar-Opium
+# RePaRe - Recursive Pangenome Reassembly and PAV analysis pipeline
 
 da aggiungere istruzioni per:
 - installazione conda environment
