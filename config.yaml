@@ -31,3 +31,7 @@ Busco_dir: # /absolute/path/to/file/BUSCO_names_file
 # Make sure that the file containing the assembly is a .fna.gz or .fasta.gz file.
 # Include the file name in the path 
 GCc_dir: # /absolute/path/to/file/genome_assembly.fna.gz
+
+# Thread number in rule "bwa_mapping_sort" in snakefile_part_1.
+# Change the number to suit your needs and your machine architecture.
+Th_num: 64
