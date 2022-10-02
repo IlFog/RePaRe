@@ -5,7 +5,7 @@ import seaborn as sns
 
 
 # returns coverage of contiguous regions of the genome 
-# that are covered by at least one annotation as "exon"
+# that are overlapped by at least one annotation as "exon",
 # all other regions are excluded.
 # The gene parameter is from a coordinate dataframe
 # The cov map is global and is derived from the mapping
