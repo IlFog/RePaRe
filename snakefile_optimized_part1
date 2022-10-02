@@ -61,7 +61,7 @@ rule bwa_mapping_sort:
         read_2 = "{wpath}/reads/{sample}_2_tr.fastq.gz"
     output:
         map = "{wpath}/reads/{sample}_mapping.bam"      
-    threads: 64
+    threads: config['Th_num']
     log: "{wpath}/r_logs/bwa_map_{sample}.log"
     shell:
         "bwa mem -t {threads} {input.genome} {input.read_1} {input.read_2} | samtools sort | samtools view -b > {output.map}"
