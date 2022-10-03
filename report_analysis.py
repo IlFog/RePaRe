@@ -19,7 +19,7 @@ for one_dir in dirs:		#takes info from fastqc.txt files and extracts them into a
     report = defaultdict(dict)
     name = in_file.split('/')[-2]
     rows = []
-    with open(in_file) as handle:       #cycle, opens the fastqc_data.txt file to extract module names, statuses, data.
+    with open(in_file) as handle:       #loop, opens the fastqc_data.txt file to extract module names, statuses, data.
         for line in handle.readlines():
             if line[:2] == '##':
                 continue
@@ -51,7 +51,9 @@ dc_2 = dc_2["Per base sequence content"]
 df_2 = pd.DataFrame.from_dict(dc_2["data"])
 
 
-#saves the number of G instances in the dataframe into a float number.
+#converting the number of G instances in the dataframe as a float number.
+#this is used to infer a good head and tail trimming position in order to 
+#remove compositional bias (if any)
 df_1["G"] = df_1["G"].astype(float)
 df_2["G"] = df_2["G"].astype(float)
 
@@ -61,7 +63,7 @@ bigger_2 = df_2["G"].median()+0.5
 smaller_1 = df_1["G"].median()-0.5
 smaller_2 = df_2["G"].median()-0.5
 
-#cycle, it calculates the trimming position for the beginning of the sequence, {sample}_1.fasta.
+#loop, it calculates the trimming position for the beginning of the sequence, {sample}_1.fasta.
 for i in range(0, len(df_1.G)):
     med_1 = df_1.G[i:i+7].median()      #calculating median on selected window
     st_dev_1 = df_1.G[i:i+7].std()      #calculating standard deviation on selected window
@@ -70,7 +72,7 @@ for i in range(0, len(df_1.G)):
         print(trim_pos_1)
         break
 
-#cycle, it calculates the trimming position for the beginning of the sequence, {sample}_2.fasta.
+#loop, it calculates the trimming position for the beginning of the sequence, {sample}_2.fasta.
 for i in range(0, len(df_2.G)):
     med_2 = df_2.G[i:i+7].median()      #calculating median on selected window
     st_dev_2 = df_2.G[i:i+7].std()      #calculating standard deviation on selected window
@@ -80,7 +82,7 @@ for i in range(0, len(df_2.G)):
         break
 
 
-#condition to select which value to use for the trimming.
+#condition to select which value to use for the trimming, using the greatest of the two.
 if trim_pos_1 > trim_pos_2 :
     trim_pos = trim_pos_1
 else:
@@ -103,7 +105,7 @@ trim_pos = str(trim_pos)
 
 
 #creation of the trimming report with infos on thresholds and trimming position. 
-#(clearly you have to use them for the trimming for them to be true, otherwise the trimming position is the default one of the fastp programme)
+#(you have to use them for the trimming for them to be true, otherwise the trimming position is the default one of the fastp programme)
 report = mdu(file_name = snakemake.output["reporto"], title =  snakemake.wildcards["sample"]+" Reads Report")
 report.new_header(level = 1, title = " ")
 report.new_header(level = 2, title = "1. Upper limit chosen for the median composition based on appearance of base G:")

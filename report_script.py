@@ -16,7 +16,7 @@ from mdutils import Html
 #CODE TO CALCULATE LIIMITS FOR DEPTH COVERAGE SELECTION
 #BUSCO GENES DEFINE HOMOZYGOUS PEAK
 
-#opening and readin .csv file with depth coverage for genes
+#opening and reading .csv file with depth coverage for genes
 genes_op = open (snakemake.input["bcsv"])
 genes_cover = pds.read_csv (genes_op)
 
@@ -47,7 +47,7 @@ inf = str (round(inferior_busco, 2))
 
 
 
-# Will close handle cleanly
+#Reading scaffolds and saving identifiers and sizes
 with open(snakemake.input["scaffolds"]) as fasta_file:  
     identifiers = []
     lengths = []
@@ -139,7 +139,7 @@ report.write(inf)
 report.write("\n")
 
 # WARNING!! 
-# Modify this line with your second assembly, from which you calculate GC count. 
+# Edit this line with your second assembly, from which you calculate GC count. 
 # Remember to also modify the upper and lower limit values.
 report.new_line("GC count: based on GC count from " + report.new_inline_link(link = "https://www.ncbi.nlm.nih.gov/assembly/GCA_000297895.2", text = "ASM29789v2"))
 report.write(" assembly from NCBI database. Considered 95th percentile as valid.")

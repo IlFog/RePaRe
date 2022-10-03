@@ -39,7 +39,7 @@ rule remove:
         "rm {input.r1}"
         "rm {input.r2}"
 
-# mapping of the unmapped reads from the reference genome over
+# mapping of the unmapped reads from the reference genome to
 # the new scaffolds inside the pangenome file.
 # also sorts and converts to bam file.
 rule bwa_remapping_sort:
@@ -134,7 +134,7 @@ rule bwa_remapping_2:
     shell:
         "bwa mem {input.scaff} {input.fowd} {input.revs} | samtools sort | samtools view -b > {output}"
 
-# calculates the coverage from the remapping just done.
+# calculates the coverage from the remapping.
 rule samtools_coverage_tab:
     input:
         "{wpath}/spades_assembly/{sample}/{sample}_remap.bam"
