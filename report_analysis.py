@@ -52,7 +52,7 @@ df_2 = pd.DataFrame.from_dict(dc_2["data"])
 
 
 #converting the number of G instances in the dataframe as a float number.
-#this is used to infer a good head and tail trimming position in order to 
+#this is used later to infer a good head and tail trimming position in order to 
 #remove compositional bias (if any)
 df_1["G"] = df_1["G"].astype(float)
 df_2["G"] = df_2["G"].astype(float)
