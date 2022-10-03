@@ -33,7 +33,7 @@ rule remove:
         r1 = "{wpath}/reads/{sample}_1.fastq.gz",
         r2 = "{wpath}/reads/{sample}_2.fastq.gz"
     output:
-        "{wpath}/reads/reads_download.sh"       #TODO: change the path of the output or put it inside the config file
+        config['ph_file']
     log: "{wpath}/r_logs/2_remove.log"
     shell:
         "rm {input.r1}"
