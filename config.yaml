@@ -23,9 +23,9 @@ Exons_dir: # /absolute/path/to/file/ALL_genes_exons_IDs
 # Check the README for more infos on why a second filepath is needed.
 list_path: # /absolute/path/to/list/of/reads.txt
 
-# Write the parth to a file inide the folder containing the reads.fastq.gz files
-# (or your reads fasta files anyway). It is needed by the rule removing those files
-# as a placeholder file put in the output voice of the rule.
+# Write the path to a file inside the directory containing the reads.fastq.gz files
+# (or more generally your read files). It is needed by the rule dedicated to rthe removal of those files
+# as a placeholder file in the output of the rule.
 ph_file: # /absolute/path/to/file
 
 # Write the path to your file containing the names of BUSCO genes.
