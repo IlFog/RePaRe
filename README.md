@@ -76,7 +76,9 @@ The config file contains all the paths to the files needed by the two parts of t
 To have the pipeline working, make sure a list of the names of the samples is available. For example:
 
 > SRRxxxxx_sample1
+> 
 > SRRxxxxx_sample2
+> 
 > SRRxxxxx_sample3
 
 These will be used during the analysis as names for all the subsequent files and directories. If you want to change them, make sure to have the names of the reads matching the names in the list.
