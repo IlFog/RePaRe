@@ -24,7 +24,7 @@ Exons_dir: # /absolute/path/to/file/ALL_genes_exons_IDs
 list_path: # /absolute/path/to/list/of/reads.txt
 
 # Write the path to a file inside the directory containing the reads.fastq.gz files
-# (or more generally your read files). It is needed by the rule dedicated to rthe removal of those files
+# (or more generally your read files). It is needed by the rule dedicated to the removal of those files
 # as a placeholder file in the output of the rule.
 ph_file: # /absolute/path/to/file
 
