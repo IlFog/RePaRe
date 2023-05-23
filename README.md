@@ -108,7 +108,9 @@ Please note that the pipeline expects to find a folder called "reads" inside you
 
 **Files:** the names of files of the reads inside the *reads* folder are expected to be as follows: 
 
-*name of the sample*_1.fastq.gz and *name of the sample*_2.fastq.gz
+*name of the sample*_1.fastq.gz
+
+*name of the sample*_2.fastq.gz
 
 Any other structure won't be recognized. 
 **If your reads have a different name, consider modifying the snakefile to suit your reads name.**
