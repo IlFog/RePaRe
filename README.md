@@ -9,7 +9,7 @@ da aggiungere istruzioni per:
 - utilizzo e modifica snake_bash
 -->
 
-RePaRe is a bioinformatic pipeline that aims to analyze resequencing data from as many individuals as possible coming from same species, in order to access the phenomenon of presence-absence variation in the species and conseuqently extract and collect the dispensable section of the genome.
+RePaRe is a bioinformatic pipeline that aims to analyze resequencing data from as many individuals as possible coming from the same species, in order to access the phenomenon of presence-absence variation in the species and conseuqently extract and collect the dispensable section of the genome.
 The pipeline is composed of two sections: a parallel section, analyzing all the individuals at once, and an iterative section, analyzing and extracting data from one individual at a time.
 These need to run separately at the moment.
 
