@@ -67,6 +67,8 @@ https://seaborn.pydata.org/installing.html
 spades installation:
 https://anaconda.org/bioconda/spades
 
+For an easier installation, a *snakemake_env.yml* is provided in this repository.
+
 
 ## Usage of RePaRe
 
