@@ -98,6 +98,21 @@ As can be seen in the config file, the needed paths and files are:
 
 If one or more of these files are not available, make sure to have them ready before starting up the pipeline.
 
+### Directory and files structure
+
+For the pipeline to properly work, a specific directory and file structure is necessary.
+It is nothing complex, do not worry.
+
+**Directory:** in the config file you need to specify the working directory.
+Please note that the pipeline expects to find a folder called "reads" inside your working directory, containing the files of all the reads you will analyse (DUUH?!).
+
+**Files:** the names of files of the reads inside the *reads* folder are expected to be as follows: 
+
+*name of the sample*_1.fastq.gz and *name of the sample*_2.fastq.gz
+
+Any other structure won't be recognized. 
+**If your reads have a different name, consider modifying the snakefile to suit your reads name.**
+
 ### First section: parallel analysis
 
 The first section of the pipeline runs in parallel. To start it, once everything has been installed and prepared, type in the terminal:
