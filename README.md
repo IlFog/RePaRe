@@ -142,6 +142,8 @@ First, though, the first individual needs to run on its own. I'd advise to use t
 
 **ATTENTION:** TAKE A LOOK AT report_script.py BEFORE RUNNING THE PIPELINE FOR THE FIRST TIME! THIS SCRIPT NEEDS A SLIGHT MODIFICATION FOR THE FIRST INDIVIDUAL (since some rules and analysis are not performed)
 
+**ATTENTION:** A RULE TO REMOVE THE RAW READS IS PRESENT! MAKE SURE TO SILENCE IT IF YOU DON?T WANT TO REMOVE YOUR ORIGINAL READS.
+
 Be aware that consequently the input files for the `rule bwa_remapping_2` need to be changed to the unmapped reads extracted from the mapping on the reference genome.
 As for the report script, a few data will not be available for the first individual, so make sure to change the script a bit before running it.
 <!--sarebbe forse più semplice creare una pipeline adattata per il primo individuo? pensarci-->
