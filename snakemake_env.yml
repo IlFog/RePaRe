@@ -136,7 +136,7 @@ dependencies:
   - openjpeg=2.5.0=hfec8fc6_2
   - openmp=8.0.1=0
   - openpyxl=3.0.9=pyhd3eb1b0_0
-  - openssl=3.1.0=hd590300_3
+  - openssl=3.1.1=hd590300_1
   - packaging=23.1=pyhd8ed1ab_0
   - pandas=2.0.1=py311h320fe9a_1
   - parsedatetime=2.6=pyh9f0ad1d_0
@@ -219,3 +219,4 @@ dependencies:
   - xz=5.2.6=h166bdaf_0
   - zlib=1.2.13=h166bdaf_4
   - zstd=1.5.2=h3eb15da_6
+prefix: /home/umberto/miniconda3/envs/Repare
