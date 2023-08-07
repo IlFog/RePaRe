@@ -1,0 +1,12 @@
+import os
+import re
+import sys
+import tempfile
+import pandas as pd
+import numpy as np
+from pathlib import Path
+
+
+workflow_folder = os.path.dirname(os.path.abspath(workflow,snakefile))
+
+sys.path.append(os.path.join(workflow_folder, "scripts"))
