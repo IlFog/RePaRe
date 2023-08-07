@@ -83,7 +83,7 @@ rule analysis:
         busco_exons = config["BuscoID_dir"],        # variable containing the path of a file containing the ID of BUSCO genes, written inside the config file.
         genes_id = config["Exons_dir"]
     output:
-        #results_fig = "{wpath}/coverage/{sample}/{sample}_mapping_depth_coverage.png",
+        results_fig = "{wpath}/coverage/{sample}/{sample}_mapping_depth_coverage.png",
         results_tab = "{wpath}/coverage/{sample}/{sample}_mapping_depthgenes_coverage.csv",
         results_lista = "{wpath}/coverage/{sample}/{sample}_mapping_depth.list"
     log: "{wpath}/r_logs/analysis_{sample}.log"

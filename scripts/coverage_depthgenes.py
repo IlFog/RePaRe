@@ -2,6 +2,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os, os.path
+
+# function to safely open the file path to write the outputs
+def safe_open_w(path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    return open(path, 'w')
 
 
 # returns coverage of contiguous regions of the genome 
@@ -62,12 +68,11 @@ coverage_tot_genes = tot_genes.groupby("ID_gene").apply(flatten_exons)		#groups 
 
 #print(coverage_tot_genes.head())	#print to check the correct execution of the script
 
-
-with open(snakemake.output["results_lista"], "w") as of:	# open the output file for writing
-                                                            # the id each gene under threshold 
+with safe_open_w(snakemake.output["results_lista"]) as of:	# open the output file for writing the id each gene under threshold 
     for gene in coverage_tot_genes[coverage_tot_genes<THRSH].index:
         of.write("{}\n".format(gene))
 del cov_map
 
 coverage_tot_genes.to_csv(snakemake.output["results_tab"])	#turns coverage_tot_genes into a csv file
 
+plt.savefig(snakemake.output["results_fig"])
