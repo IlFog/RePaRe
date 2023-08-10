@@ -83,11 +83,7 @@ for i in range(0, len(df_2.G)):
 
 
 #condition to select which value to use for the trimming, using the greatest of the two.
-if trim_pos_1 > trim_pos_2 :
-    trim_pos = trim_pos_1
-else:
-    trim_pos = trim_pos_2
-
+trim_pos = trim_pos_1 if trim_pos_1 > trim_pos_2 else trim_pos_2
     
 #used to write into the config file the value of the position to trim. 
 #Commented because I resorted to the default trimming for the beginning of the sequences.

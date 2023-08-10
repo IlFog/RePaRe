@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# returns coverage of contiguous regions of the genome 
-# that are overlapped by at least one annotation as "exon",
-# all other regions are excluded.
-# The gene parameter is from a coordinate dataframe
-# The cov map is global and is derived from the mapping
+
 def flatten_exons(gene):
+    """
+    Returns coverage of contiguous regions of the genome 
+    that are overlapped by at least one annotation as "exon",
+    all other regions are excluded.
+    The gene parameter is from a coordinate dataframe
+    The cov map is global and is derived from the mapping
+    """
     global cov_map
     contig = gene.contig.values[0]
     start = min(gene.start.values)-1
